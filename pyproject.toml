@@ -1,0 +1,40 @@
+[project]
+name = "booking-bot"
+version = "0.1.0"
+description = "Telegram booking bot for a single salon."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiogram>=3.22,<4",
+    "apscheduler>=3.11,<4",
+    "pydantic-settings>=2.11,<3",
+    "sqlalchemy>=2.0,<3",
+]
+
+[project.scripts]
+booking-bot = "booking_bot.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+    "ruff>=0.14",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
