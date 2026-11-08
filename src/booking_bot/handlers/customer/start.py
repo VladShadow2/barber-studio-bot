@@ -1,12 +1,12 @@
 from aiogram import Router
-from aiogram.filters import CommandStart
-from aiogram.types import Message
 
-from booking_bot.texts import START
-
-router = Router(name="customer-start")
+from booking_bot.handlers.customer.booking import register_booking
+from booking_bot.handlers.customer.menu import register_fallback, register_menu
 
 
-@router.message(CommandStart())
-async def command_start(message: Message) -> None:
-    await message.answer(START)
+def create_customer_router() -> Router:
+    router = Router(name="customer")
+    register_menu(router)
+    register_booking(router)
+    register_fallback(router)
+    return router

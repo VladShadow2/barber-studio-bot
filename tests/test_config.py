@@ -46,7 +46,7 @@ def test_check_runtime_settings_accepts_defaults() -> None:
     settings = Settings(
         bot_token=VALID_TOKEN,
         admin_ids="7",
-        database_url="sqlite:///./booking.db",
+        database_url="postgresql+asyncpg://booking:booking@localhost:5432/booking",
         timezone="Europe/Kyiv",
         currency="UAH",
         slot_minutes=30,
@@ -55,18 +55,41 @@ def test_check_runtime_settings_accepts_defaults() -> None:
     assert check_runtime_settings(settings) == VALID_TOKEN
 
 
-def test_check_runtime_settings_rejects_a_non_sqlite_url() -> None:
-    settings = Settings(bot_token=VALID_TOKEN, database_url="postgresql://localhost/booking")
-    with pytest.raises(SystemExit, match="SQLite"):
+def test_check_runtime_settings_rejects_sqlite_and_hides_the_url() -> None:
+    supplied = "sqlite:///./secret-booking.db"
+    settings = Settings(bot_token=VALID_TOKEN, database_url=supplied)
+    with pytest.raises(SystemExit) as caught:
+        check_runtime_settings(settings)
+    message = str(caught.value)
+    assert "postgresql+asyncpg://" in message
+    assert supplied not in message
+
+
+def test_check_runtime_settings_rejects_webhook_without_https_or_secret() -> None:
+    settings = Settings(
+        bot_token=VALID_TOKEN,
+        database_url="postgresql+asyncpg://booking:booking@localhost/booking",
+        bot_mode="webhook",
+        webhook_base_url="http://example.test",
+        webhook_secret="short",
+    )
+    with pytest.raises(SystemExit, match="https"):
         check_runtime_settings(settings)
 
 
 def test_check_runtime_settings_rejects_an_unknown_timezone() -> None:
-    settings = Settings(bot_token=VALID_TOKEN, timezone="Not/AZone")
+    settings = Settings(
+        bot_token=VALID_TOKEN,
+        database_url="postgresql+asyncpg://booking:booking@localhost/booking",
+        timezone="Not/AZone",
+    )
     with pytest.raises(SystemExit, match="TIMEZONE"):
         check_runtime_settings(settings)
 
 
 def test_dispatcher_uses_memory_storage() -> None:
-    dispatcher = build_dispatcher()
-    assert isinstance(dispatcher.storage, MemoryStorage)
+    first = build_dispatcher()
+    second = build_dispatcher()
+    assert isinstance(first.storage, MemoryStorage)
+    assert isinstance(second.storage, MemoryStorage)
+    assert first is not second

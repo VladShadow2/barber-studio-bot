@@ -6,9 +6,13 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "aiogram>=3.22,<4",
-    "apscheduler>=3.11,<4",
+    "aiohttp>=3.10,<4",
+    "alembic>=1.14,<2",
+    "greenlet>=3.2",
+    "asyncpg>=0.30,<1",
     "pydantic-settings>=2.11,<3",
     "sqlalchemy>=2.0,<3",
+    "tzdata>=2025.2",
 ]
 
 [project.scripts]
@@ -17,6 +21,7 @@ booking-bot = "booking_bot.__main__:main"
 [dependency-groups]
 dev = [
     "pytest>=8.4",
+    "pytest-asyncio>=0.24",
     "ruff>=0.14",
 ]
 
@@ -30,6 +35,8 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 target-version = "py312"
